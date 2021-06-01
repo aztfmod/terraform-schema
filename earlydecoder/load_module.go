@@ -16,6 +16,7 @@ type decodedModule struct {
 	ProviderConfigs      map[string]*providerConfig
 	Resources            map[string]*resource
 	DataSources          map[string]*dataSource
+	ModuleSources        map[string]*module.ModuleSource
 }
 
 func newDecodedModule() *decodedModule {
@@ -25,6 +26,7 @@ func newDecodedModule() *decodedModule {
 		ProviderConfigs:      make(map[string]*providerConfig, 0),
 		Resources:            make(map[string]*resource, 0),
 		DataSources:          make(map[string]*dataSource, 0),
+		ModuleSources:        make(map[string]*module.ModuleSource, 0),
 	}
 }
 
@@ -165,6 +167,18 @@ func loadModuleFromFile(file *hcl.File, mod *decodedModule) hcl.Diagnostics {
 				r.Provider = module.ProviderRef{
 					LocalName: inferProviderNameFromType(r.Type),
 				}
+			}
+		case "module":
+			content, _, contentDiags := block.Body.PartialContent(moduleSchema)
+			diags = append(diags, contentDiags...)
+
+			ms := &module.ModuleSource{Name: block.Labels[0]}
+			mod.ModuleSources[ms.MapKey()] = ms
+
+			if attr, defined := content.Attributes["source"]; defined {
+				// decodeModuleAttribute
+				valDiags := gohcl.DecodeExpression(attr.Expr, nil, &ms.Source)
+				diags = append(diags, valDiags...)
 			}
 		}
 	}

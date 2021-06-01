@@ -55,3 +55,11 @@ var resourceSchema = &hcl.BodySchema{
 		},
 	},
 }
+
+var moduleSchema = &hcl.BodySchema{
+	Attributes: []hcl.AttributeSchema{
+		{
+			Name: "source",
+		},
+	},
+}

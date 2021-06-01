@@ -11,6 +11,7 @@ type Meta struct {
 	ProviderReferences   map[ProviderRef]tfaddr.Provider
 	ProviderRequirements map[tfaddr.Provider]version.Constraints
 	CoreRequirements     version.Constraints
+	ModuleSources        map[string]ModuleSource
 }
 
 type ProviderRef struct {
